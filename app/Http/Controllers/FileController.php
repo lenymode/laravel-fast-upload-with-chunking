@@ -8,6 +8,11 @@ class FileController extends Controller
 {
     public function uploadChunk(Request $request)
     {
+        return response()->json([
+            'message' => 'This compatibility endpoint no longer accepts unsafe client-generated paths. Start a resumable session at POST /api/uploads.',
+            'endpoint' => '/api/uploads',
+        ], 410);
+        /*
         $file = $request->file('file');
         $chunkNumber = $request->input('chunkNumber');
         $totalChunks = $request->input('totalChunks');
@@ -39,7 +44,7 @@ class FileController extends Controller
             return $this->mergeChunks($identifier, $originalName);
         }
 
-        return response()->json(['success' => true]);
+        return response()->json(['success' => true]); */
     }
 
     private function mergeChunks($identifier, $originalName)

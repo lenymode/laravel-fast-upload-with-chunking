@@ -1,0 +1,35 @@
+services:
+  web:
+    build: .
+    command: php artisan serve --host=0.0.0.0 --port=8000
+    ports: ["${APP_PORT:-8000}:8000"]
+    environment: [REDIS_HOST=redis, QUEUE_CONNECTION=redis, REDIS_QUEUE_RETRY_AFTER=3700, SESSION_DRIVER=cookie, CACHE_STORE=file]
+    volumes: [upload-storage:/app/storage/app/private, framework-storage:/app/storage/framework]
+    depends_on:
+      redis: {condition: service_healthy}
+  worker:
+    build: .
+    command: php artisan queue:work redis --tries=3 --timeout=3600 --sleep=1
+    environment: [REDIS_HOST=redis, QUEUE_CONNECTION=redis, REDIS_QUEUE_RETRY_AFTER=3700, SESSION_DRIVER=cookie, CACHE_STORE=file]
+    volumes: [upload-storage:/app/storage/app/private, framework-storage:/app/storage/framework]
+    depends_on:
+      redis: {condition: service_healthy}
+  scheduler:
+    build: .
+    command: php artisan schedule:work
+    environment: [REDIS_HOST=redis, QUEUE_CONNECTION=redis, REDIS_QUEUE_RETRY_AFTER=3700, SESSION_DRIVER=cookie, CACHE_STORE=file]
+    volumes: [upload-storage:/app/storage/app/private, framework-storage:/app/storage/framework]
+    depends_on:
+      redis: {condition: service_healthy}
+  redis:
+    image: redis:7-alpine
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 2s
+      timeout: 2s
+      retries: 15
+volumes:
+  upload-storage:
+  framework-storage:
+  redis-data:

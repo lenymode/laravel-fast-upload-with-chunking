@@ -6,6 +6,7 @@
         "dev": "vite"
     },
     "devDependencies": {
+        "@noble/hashes": "^2.0.1",
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.7.4",
         "concurrently": "^9.0.1",
